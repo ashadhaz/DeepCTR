@@ -708,6 +708,7 @@ class InteractingLayer(Layer):
         self.use_res = use_res
         self.seed = seed
         self.scaling = scaling
+        self.att_scores_all = None
         super(InteractingLayer, self).__init__(**kwargs)
 
     def build(self, input_shape):
@@ -752,6 +753,11 @@ class InteractingLayer(Layer):
         if self.scaling:
             inner_product /= self.att_embedding_size ** 0.5
         self.normalized_att_scores = softmax(inner_product)
+
+        if self.att_scores_all is None:
+            self.att_scores_all = self.normalized_att_scores
+        else:
+            self.att_scores_all += self.normalized_att_scores
 
         result = tf.matmul(self.normalized_att_scores,
                            values)  # head_num None F D
